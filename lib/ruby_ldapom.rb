@@ -30,7 +30,7 @@ require 'net/ldap'
 
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
-require "ruby_ldapom/ldap_attribute"
+require "ruby_ldapom/ldap_attributes"
 require "ruby_ldapom/ldap_connection"
 require 'ruby_ldapom/ldap_node'
 require "ruby_ldapom/version"
