@@ -1,4 +1,4 @@
-# ruby-ldapom
+# ruby_ldapom
 
 This gem provides a simple LDAP object mapper.
 
@@ -10,7 +10,7 @@ MIT, so do what you want. Just leave the copyright notice in the code.
 
 Add this line to your application's Gemfile:
 
-    gem 'ruby-ldapom'
+    gem 'ruby_ldapom'
 
 And then execute:
 
@@ -18,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install ruby-ldapom
+    $ gem install ruby_ldapom
 
 ## Usage
 
