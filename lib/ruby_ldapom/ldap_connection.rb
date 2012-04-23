@@ -43,6 +43,7 @@ module RubyLdapom
     end
 
     # Public: Tries to authenticate with a separate bind to check the combination for validity.
+    # Rebinds with @login_dn afterwards.
     #
     # dn - The String DN to bind to. base_dn will be appended.
     # password - The String password to use.
@@ -57,13 +58,36 @@ module RubyLdapom
       end
     end
 
+    # Public: Adds a new node with a given dn and attributes.
+    #
+    # dn - The DN to add.
+    # attributes - A Hash of attributes
+    #
+    # Returns an LdapNode object of the added node.
     def add(dn, attributes)
+      @conn.add(:dn => dn, :attributes => attributes)
+
+      return RubyLdapom::LdapNode.new(self, dn, false)
     end
 
-    def rename(dn, newrdn)
+    # Public: Renames a given node with a new RDN.
+    # 
+    # dn - The DN to rename.
+    # newrdn - The new RDN (example: "cn=new_rdn")
+    #
+    # Returns an LdapNode object of the renamed node.
+    def rename(dn, new_rdn)
+      @conn.rename :olddn => dn, :newrdn => new_rdn
+      new_dn = dn.gsub(/^.+,/, "#{new_rdn},")
+
+      return RubyLdapom::LdapNode.new(self, new_dn, false)
     end
 
+    # Public: Deletes a given DN.
+    #
+    # Returns whether the deletion was successful.
     def delete(dn)
+      @conn.delete :dn => dn
     end
 
     def delete_r(dn)
@@ -95,10 +119,23 @@ module RubyLdapom
     def dn_exists?(dn)
     end
 
+    # Public: Fetches a node. This does however NOT check if the DN exists.
+    #
+    # dn - The DN to fetch.
+    #
+    # Returns an LdapNode object.
     def get_ldap_node(dn)
+      return RubyLdapom::LdapNode.new(self, dn, false)
     end
 
+    # Public: Fetches a node with all its attributes. This checks if the DN exists.
+    #
+    # dn - The DN to fetch.
+    #
+    # Returns an LdapNode object or nil if it does not exist or is not accessible.
     def retrieve_ldap_node(dn)
+      node = RubyLdapom::LdapNode.new(self, dn, false)
+      node.load_attributes
     end
 
     def new_ldap_node(dn)

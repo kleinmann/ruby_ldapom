@@ -13,8 +13,12 @@ module RubyLdapom
       @conn = connection
       @dn = dn
       @clean = true
+      @attributes_loaded = false
     end
 
+    # Public: Loads the node's attributes.
+    #
+    # Returns whether the node existed (i.e. the attributes could be loaded).
     def load_attributes
       result = @conn.search(:base => @conn.base_dn,
                             :filter => Net::LDAP::Filter.eq("dn", @dn),
@@ -27,26 +31,47 @@ module RubyLdapom
       end
 
       @attributes = RubyLdapom::LdapAttributes.new(attributes)
+      @attributes_loaded = true
+
+      return true
     end
 
+    # Public: Saves the changes to the node or adds a new node if needed.
+    #
+    # Returns an LdapNode object of the saved node or nil if the operation failed.
     def save
+      result = nil
+
       unless @new
         unless @attributes.changes.empty? || @clean
           @conn.modify :dn => @dn, :operations => @attributes.changes
           @attributes.discard_changes
         end
+        result = self
       else
-
+        result = @conn.add(@dn, @attributes.to_hash)
       end
 
-      return true
+      return result
     end
 
+    # Public: Getter for the attributes of the node. Loads the attributes if needed.
+    #
+    # Returns an LdapAttribute object.
     def attributes
+      unless @attributes_loaded
+        load_attributes
+      end
       @attributes
     end
 
+    # Public: Setter for the attributes of the node. Loads the attributes first if needed.
+    #
+    # Returns the changed LdapAttribute object.
     def attributes=(value)
+      unless @attributes_loaded
+        load_attributes
+      end
       if @attributes != value
         @clean = false
       end
@@ -54,10 +79,15 @@ module RubyLdapom
       @attributes = value
     end
 
+    # Public: Deletes the node.
+    #
+    # Returns the deleted node if it existed or nil otherwise.
     def delete
-    end
+      unless @new
+        return self if @conn.delete :dn => @dn
+      end
 
-    def set_password(password)
+      return false
     end
   end
 end

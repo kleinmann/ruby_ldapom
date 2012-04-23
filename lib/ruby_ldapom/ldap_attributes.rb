@@ -107,6 +107,11 @@ module RubyLdapom
       inspect
     end
 
+    # Public: Returns just the attributes hash.
+    def to_hash
+      @attributes
+    end
+
     # Public: Inspects the attributes hash.
     #
     # Returns a String representation of the attributes.
